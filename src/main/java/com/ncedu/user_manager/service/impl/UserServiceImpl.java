@@ -5,8 +5,10 @@ import com.ncedu.user_manager.model.dto.LoginPasswordDTO;
 import com.ncedu.user_manager.model.dto.NewUserDTO;
 import com.ncedu.user_manager.model.dto.TokenDTO;
 import com.ncedu.user_manager.model.dto.UserDTO;
+import com.ncedu.user_manager.model.entity.RoleEntity;
 import com.ncedu.user_manager.model.entity.UserEntity;
 import com.ncedu.user_manager.model.security.UserPrincipal;
+import com.ncedu.user_manager.repository.RoleRepository;
 import com.ncedu.user_manager.repository.UserRepository;
 import com.ncedu.user_manager.service.error.Error;
 import com.ncedu.user_manager.service.UserService;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -31,6 +34,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JWTTokenService tokenService;
+    private final RoleRepository roleRepository;
 
     @Override
     public UserDTO create(NewUserDTO newUserDTO) {
@@ -60,8 +64,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void delete(UUID id) {
-        throw new UnsupportedOperationException(); //TODO implement
+        Optional<UserEntity> user = userRepository.findLockedById(id);
+        user.ifPresent(userRepository::delete);
     }
 
     @Override
@@ -159,12 +165,32 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDTO addRoles(UUID id, List<String> roleCodes) {
-        throw new UnsupportedOperationException(); //TODO implement
+        Optional<UserEntity> user = userRepository.findLockedById(id);
+        if (user.isPresent()) {
+            for (String roleCode : roleCodes) {
+                Optional<RoleEntity> role = roleRepository.findByCode(roleCode);
+                role.ifPresent(roleEntity -> user.get().getRoles().add(roleEntity));
+            }
+            userRepository.save(user.get());
+            return userConverter.toDTO(user.get());
+        } else {
+            throw new BaseException(Error.USER_WITH_PROVIDED_ID_NOT_FOUND);
+        }
     }
 
     @Override
     @Transactional
     public UserDTO removeRoles(UUID id, List<String> roleCodes) {
-        throw new UnsupportedOperationException(); //TODO implement
+        Optional<UserEntity> user = userRepository.findLockedById(id);
+        if (user.isPresent()) {
+            for (String code : roleCodes) {
+                user.get().getRoles().removeIf(roleEntity ->
+                    roleEntity.getCode().equals(code));
+            }
+            userRepository.save(user.get());
+            return userConverter.toDTO(user.get());
+        } else {
+            throw new BaseException(Error.USER_WITH_PROVIDED_ID_NOT_FOUND);
+        }
     }
 }

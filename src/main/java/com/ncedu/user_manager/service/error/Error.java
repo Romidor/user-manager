@@ -17,7 +17,8 @@ public enum Error {
     //User errors 100-199
     INVALID_LOGIN_OR_PASSWORD("100", "Invalid login or password"),
     USER_WITH_TOKEN_NOT_FOUND("101", "User with provided token not found"),
-    USER_WITH_PROVIDED_LOGIN_ALREADY_EXISTS("102", "User with provided login already exists")
+    USER_WITH_PROVIDED_LOGIN_ALREADY_EXISTS("102", "User with provided login already exists"),
+    USER_WITH_PROVIDED_ID_NOT_FOUND("103", "User with provided id not found")
 
     //Role errors 200-299
 

@@ -46,24 +46,21 @@ public class UserController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('USER_ADMIN')")
     public void delete(@PathVariable UUID id) {
-        throw new UnsupportedOperationException();
-        //TODO implement
+        userService.delete(id);
     }
 
     @ApiOperation(httpMethod = "POST", value = "Add roles to user")
     @PostMapping("/{id}/addRoles")
     @PreAuthorize("hasAuthority('USER_ADMIN')")
     public UserDTO addRoles(@PathVariable UUID id, @RequestBody List<String> roleCodes) {
-        throw new UnsupportedOperationException();
-        //TODO implement
+        return userService.addRoles(id, roleCodes);
     }
 
     @ApiOperation(httpMethod = "POST", value = "Remove roles from user")
     @PostMapping("/{id}/removeRoles")
     @PreAuthorize("hasAuthority('USER_ADMIN')")
     public UserDTO removeRoles(@PathVariable UUID id, @RequestBody List<String> roleCodes) {
-        throw new UnsupportedOperationException();
-        //TODO implement
+        return userService.removeRoles(id, roleCodes);
     }
 
 }
